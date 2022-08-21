@@ -32,7 +32,7 @@ public class EstadoMenu extends Estado{
             Vector3 tmp= new Vector3(Gdx.input.getX(),Gdx.input.getY(),0);
             camera.unproject(tmp);
             Rectangle textureBounds=new Rectangle((FlappyBirdLP.WIDTH/2) - (playBtn.getWidth()/2), FlappyBirdLP.HEIGHT/2 - 150,playBtn.getWidth(),playBtn.getHeight());
-            if(textureBounds.contains(tmp.x, tmp.y)){
+            if(textureBounds.contains(tmp.x, tmp.y)){ //Si le da al botón, lo lleva al getReady state
                 gsm.set(new GetReady(gsm));
             }
 
