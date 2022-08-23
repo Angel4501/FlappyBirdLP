@@ -42,7 +42,6 @@ public class EstadoMenu extends Estado{
     @Override
     public void update(float dt) {
         handleInput();
-
     }
 
     @Override

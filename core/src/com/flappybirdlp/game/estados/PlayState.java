@@ -25,7 +25,7 @@ public class PlayState extends Estado{
     private Vector2 groundPos1, groundPos2;
 
     private int val=0;
-    private Sound crash;
+    private Sound crash, tubepassed;
 
     public PlayState(GameStateManager gsm) {
         super(gsm);
@@ -39,6 +39,7 @@ public class PlayState extends Estado{
         groundPos2 = new Vector2((camera.position.x - camera.viewportWidth/2) + ground.getWidth(), GROUND_Y_OFFSET);
 
         crash = Gdx.audio.newSound(Gdx.files.internal("hit.mp3"));
+        tubepassed = Gdx.audio.newSound(Gdx.files.internal("pointsound.mp3"));
 
         tubes = new Array<Tube>();
         val=0;
@@ -84,6 +85,11 @@ public class PlayState extends Estado{
                 gsm.set(new PlayState(gsm));
                 break; //borrar si no funciona
             }
+
+            if(tube.isPassed(bird.getPosition())){
+                tubepassed.play(0.1f);
+            }
+
         }
 
         //Matar al pájaro cuando toque el ground

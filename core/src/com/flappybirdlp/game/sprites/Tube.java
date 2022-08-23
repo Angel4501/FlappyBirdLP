@@ -3,6 +3,7 @@ package com.flappybirdlp.game.sprites;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 import java.util.Random;
 
@@ -55,6 +56,15 @@ public class Tube {
 
     public boolean collides(Rectangle player){
         return player.overlaps(boundsTop) || player.overlaps(boundsBot);
+    }
+
+    public boolean isPassed(Vector3 birdPosition){ //Si se pasa en medio de dos tubos, debe hacer el sonido y aumentar al contador
+        float x = birdPosition.x;
+        float result = x - posBotTube.x;
+        if(result >=50 && result <=52/*(x - posBotTube.x >0) && (x - posBotTube.x <= 2)*/){
+            return true;
+        }
+        return false;
     }
 
     public void dispose(){
