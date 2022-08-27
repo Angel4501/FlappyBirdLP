@@ -30,9 +30,9 @@ public class PlayState extends Estado{
 
     private int val=0, score;
     private Sound crash, tubepassed;
-    private BitmapFont fontScore;
-    private FreeTypeFontGenerator fontGenerator;
-    private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
+    //private BitmapFont fontScore;
+    //private FreeTypeFontGenerator fontGenerator;
+    //private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
 
     public PlayState(GameStateManager gsm) {
         super(gsm);
@@ -49,18 +49,17 @@ public class PlayState extends Estado{
         tubepassed = Gdx.audio.newSound(Gdx.files.internal("pointsound.mp3"));
 
         score=0;
-        fontScore = new BitmapFont();
+        //fontScore = new BitmapFont();
         /*fontScore.setColor(Color.WHITE);
         fontScore.getData().setScale(3);*/
 
-        fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("flappy-font.ttf"));//"OpenSans-ExtraBold.ttf"
+        /*fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("flappy-font.ttf"));//"OpenSans-ExtraBold.ttf"
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParameter.size=35;
         fontParameter.borderWidth=3;
         //fontParameter.color = Color.WHITE;
         fontParameter.borderColor = Color.BLACK;
-        fontScore = fontGenerator.generateFont(fontParameter);
-
+        fontScore = fontGenerator.generateFont(fontParameter);*/
         tubes = new Array<Tube>();
         val=0;
         for(int i=1; i<=TUBE_COUNT; i++){
@@ -177,8 +176,10 @@ public class PlayState extends Estado{
         for(Tube tube : tubes){
             tube.dispose();
         }
-        fontGenerator.dispose();
-        fontScore.dispose();
+        tubepassed.dispose();
+        digit1.dispose();
+        digit2.dispose();
+        digit3.dispose();
         //System.out.println("Play state disposed");
     }
 
