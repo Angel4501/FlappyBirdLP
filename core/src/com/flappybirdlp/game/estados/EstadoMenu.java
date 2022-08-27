@@ -25,6 +25,7 @@ public class EstadoMenu extends Estado{
         birdFirstScreen = new Texture("bird2.png");
     }
 
+    private int flag=0, iterator=0;
     @Override
     public void handleInput() {
 
@@ -33,10 +34,16 @@ public class EstadoMenu extends Estado{
             camera.unproject(tmp);
             Rectangle textureBounds=new Rectangle((FlappyBirdLP.WIDTH/2) - (playBtn.getWidth()/2), FlappyBirdLP.HEIGHT/2 - 150,playBtn.getWidth(),playBtn.getHeight());
             if(textureBounds.contains(tmp.x, tmp.y)){ //Si le da al botón, lo lleva al getReady state
-                gsm.set(new GetReady(gsm));
+                playBtn = new Texture("playbtnpressed.png");
+                flag=1;
+                //changeState();
             }
 
         }
+    }
+
+    public void changeState(){
+        gsm.set(new GetReady(gsm));
     }
 
     @Override
@@ -71,6 +78,13 @@ public class EstadoMenu extends Estado{
         }
 
         sb.draw(playBtn, (FlappyBirdLP.WIDTH/2) - (playBtn.getWidth()/2), FlappyBirdLP.HEIGHT/2 - 150); //FlappyBirdLP.HEIGHT/2 - 150);
+
+        if(flag==1){
+            iterator++;
+            if(iterator>=2){
+                changeState();
+            }
+        }
         //sb.draw(playBtn, camera.position.x - playBtn.getWidth()/2, camera.position.y);
         sb.end();
     }

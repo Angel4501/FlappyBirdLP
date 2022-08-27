@@ -2,9 +2,12 @@ package com.flappybirdlp.game.estados;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.flappybirdlp.game.FlappyBirdLP;
@@ -12,20 +15,24 @@ import com.flappybirdlp.game.sprites.Bird;
 import com.flappybirdlp.game.sprites.Tube;
 
 import jdk.internal.misc.TerminatingThreadLocal;
+import sun.font.TrueTypeFont;
 
 public class PlayState extends Estado{
-    private static final int TUBE_SPACING = 135;//125
+    private static final int TUBE_SPACING = 137;//135
     private static final int TUBE_COUNT = 4;
     private static final int GROUND_Y_OFFSET = -50;
     private Array<Tube> tubes;
 
     private Bird bird;
-    private Texture bg; //background
+    private Texture bg, digit1, digit2, digit3; //background
     private Texture ground;
     private Vector2 groundPos1, groundPos2;
 
-    private int val=0;
+    private int val=0, score;
     private Sound crash, tubepassed;
+    private BitmapFont fontScore;
+    private FreeTypeFontGenerator fontGenerator;
+    private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
 
     public PlayState(GameStateManager gsm) {
         super(gsm);
@@ -40,6 +47,19 @@ public class PlayState extends Estado{
 
         crash = Gdx.audio.newSound(Gdx.files.internal("hit.mp3"));
         tubepassed = Gdx.audio.newSound(Gdx.files.internal("pointsound.mp3"));
+
+        score=0;
+        fontScore = new BitmapFont();
+        /*fontScore.setColor(Color.WHITE);
+        fontScore.getData().setScale(3);*/
+
+        fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("flappy-font.ttf"));//"OpenSans-ExtraBold.ttf"
+        fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        fontParameter.size=35;
+        fontParameter.borderWidth=3;
+        //fontParameter.color = Color.WHITE;
+        fontParameter.borderColor = Color.BLACK;
+        fontScore = fontGenerator.generateFont(fontParameter);
 
         tubes = new Array<Tube>();
         val=0;
@@ -56,6 +76,9 @@ public class PlayState extends Estado{
 
             //tubes.add(new Tube(i * (TUBE_SPACING + Tube.TUBE_WIDTH)));
         }
+        digit1 = new Texture("0.png");
+        digit2 = new Texture("0.png");
+        digit3 = new Texture("0.png");
     }
 
     @Override
@@ -88,6 +111,21 @@ public class PlayState extends Estado{
 
             if(tube.isPassed(bird.getPosition())){
                 tubepassed.play(0.1f);
+                score++;
+                if(score>=1 && score<=9){
+                    digit1 = new Texture(score+".png");
+                }
+                else if(score>=10 && score<=99){
+                    String[] rutas = digitosContador(score);
+                    digit1 = new Texture(rutas[0]);
+                    digit2 = new Texture(rutas[1]);
+                }
+                else if(score>=100 && score<=999){
+                    String[] rutas = digitosContador(score);
+                    digit1 = new Texture(rutas[0]);
+                    digit2 = new Texture(rutas[1]);
+                    digit3 = new Texture(rutas[2]);
+                }
             }
 
         }
@@ -111,6 +149,21 @@ public class PlayState extends Estado{
             sb.draw(tube.getTopTube(), tube.getPosTopTube().x, tube.getPosTopTube().y);
             sb.draw(tube.getBottomTube(), tube.getPosBotTube().x, tube.getPosBotTube().y);
         }
+
+        //fontScore.draw(sb, String.valueOf(score), camera.position.x - (camera.viewportWidth/2) + 85, 380);
+        if(String.valueOf(score).length()==1){
+            sb.draw(digit1, camera.position.x - (camera.viewportWidth/2) + 80, 320);
+        }
+        else if(String.valueOf(score).length()==2){
+            sb.draw(digit1, camera.position.x - (camera.viewportWidth/2) + 70, 320);
+            sb.draw(digit2, camera.position.x - (camera.viewportWidth/2) + 85, 320);
+        }
+        else if(String.valueOf(score).length()==3){
+            sb.draw(digit1, camera.position.x - (camera.viewportWidth/2) + 65, 320);
+            sb.draw(digit2, camera.position.x - (camera.viewportWidth/2) + 80, 320);
+            sb.draw(digit3, camera.position.x - (camera.viewportWidth/2) + 97, 320);
+        }
+
         sb.draw(ground, groundPos1.x, groundPos1.y);
         sb.draw(ground, groundPos2.x, groundPos2.y);
         sb.end();
@@ -124,6 +177,8 @@ public class PlayState extends Estado{
         for(Tube tube : tubes){
             tube.dispose();
         }
+        fontGenerator.dispose();
+        fontScore.dispose();
         //System.out.println("Play state disposed");
     }
 
@@ -134,5 +189,44 @@ public class PlayState extends Estado{
         if(camera.position.x - (camera.viewportWidth/2) > groundPos2.x + ground.getWidth()){
             groundPos2.add(ground.getWidth()*2, 0);
         }
+    }
+
+    private String[] digitosContador(int numero){
+        String[] rutas = new String[String.valueOf(numero).length()];
+        String number  = String.valueOf(numero);
+
+        for(int i=0; i<number.length(); i++){
+            if(number.charAt(i) == '0'){
+                rutas[i] = "0.png";
+            }
+            else if(number.charAt(i)=='1'){
+                rutas[i] = "1.png";
+            }
+            else if(number.charAt(i)=='2'){
+                rutas[i] = "2.png";
+            }
+            else if(number.charAt(i)=='3'){
+                rutas[i] = "3.png";
+            }
+            else if(number.charAt(i)=='4'){
+                rutas[i] = "4.png";
+            }
+            else if(number.charAt(i)=='5'){
+                rutas[i] = "5.png";
+            }
+            else if(number.charAt(i)=='6'){
+                rutas[i] = "6.png";
+            }
+            else if(number.charAt(i)=='7'){
+                rutas[i] = "7.png";
+            }
+            else if(number.charAt(i)=='8'){
+                rutas[i] = "8.png";
+            }
+            else if(number.charAt(i)=='9'){
+                rutas[i] = "9.png";
+            }
+        }
+        return rutas;
     }
 }

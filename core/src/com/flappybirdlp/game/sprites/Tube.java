@@ -61,7 +61,8 @@ public class Tube {
     public boolean isPassed(Vector3 birdPosition){ //Si se pasa en medio de dos tubos, debe hacer el sonido y aumentar al contador
         float x = birdPosition.x;
         float result = x - posBotTube.x;
-        if(result >=50 && result <=52/*(x - posBotTube.x >0) && (x - posBotTube.x <= 2)*/){
+        float result2 = x - posTopTube.x;
+        if((result >=50 && result <=52) && (result2>=50 && result2<=52)/*(x - posBotTube.x >0) && (x - posBotTube.x <= 2)*/){
             return true;
         }
         return false;
