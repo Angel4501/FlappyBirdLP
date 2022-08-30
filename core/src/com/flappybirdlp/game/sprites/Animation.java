@@ -37,4 +37,7 @@ public class Animation {
         return frames.get(frame);
     }
 
+    public void setFrameCount(int frameCount) {
+        this.frameCount = frameCount;
+    }
 }

@@ -29,10 +29,11 @@ public class PlayState extends Estado{
     private Vector2 groundPos1, groundPos2;
 
     private int val=0, score;
+    private int hasCrashed; //0 si el pájaro aún no ha chocado con un tubo, 1 si ya chocó con un tubo
     private Sound crash, tubepassed;
-    //private BitmapFont fontScore;
-    //private FreeTypeFontGenerator fontGenerator;
-    //private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
+    private BitmapFont fontgameover; //COMENTAR A PARTIR DE AQUÍ SI SE VE MAL
+    private FreeTypeFontGenerator fontGenerator;
+    private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
 
     public PlayState(GameStateManager gsm) {
         super(gsm);
@@ -49,17 +50,18 @@ public class PlayState extends Estado{
         tubepassed = Gdx.audio.newSound(Gdx.files.internal("pointsound.mp3"));
 
         score=0;
-        //fontScore = new BitmapFont();
+        hasCrashed = 0;
+        fontgameover = new BitmapFont();
         /*fontScore.setColor(Color.WHITE);
         fontScore.getData().setScale(3);*/
 
-        /*fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("flappy-font.ttf"));//"OpenSans-ExtraBold.ttf"
+        fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("flappy-font.ttf"));//"OpenSans-ExtraBold.ttf"
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        fontParameter.size=35;
+        fontParameter.size=25;
         fontParameter.borderWidth=3;
         //fontParameter.color = Color.WHITE;
         fontParameter.borderColor = Color.BLACK;
-        fontScore = fontGenerator.generateFont(fontParameter);*/
+        fontgameover = fontGenerator.generateFont(fontParameter);
         tubes = new Array<Tube>();
         val=0;
         for(int i=1; i<=TUBE_COUNT; i++){
@@ -83,56 +85,74 @@ public class PlayState extends Estado{
     @Override
     protected void handleInput() {
         if(Gdx.input.justTouched()){
-            bird.jump();
+            if(hasCrashed==0){
+                bird.jump();
+            }
+
         }
     }
 
+    private int showGameOverInRender = 0;
     @Override
     public void update(float dt) {
         handleInput();
         updateGround();
         bird.update(dt);
 
-        camera.position.x = bird.getPosition().x + 70;
+        if(hasCrashed==0){
+            camera.position.x = bird.getPosition().x + 70;
+        }
 
-        for(Tube tube : tubes){
-            if(camera.position.x - (camera.viewportWidth/2) > tube.getPosTopTube().x + tube.getTopTube().getWidth()){
-                val = val + TUBE_SPACING;
-                tube.reposition(val);
-                //tube.reposition(tube.getPosTopTube().x + ((Tube.TUBE_WIDTH + TUBE_SPACING) * TUBE_COUNT));
-            }
-            if(tube.collides(bird.getBounds())){
-
-                crash.play(0.1f);
-                gsm.set(new PlayState(gsm));
-                break; //borrar si no funciona
-            }
-
-            if(tube.isPassed(bird.getPosition())){
-                tubepassed.play(0.1f);
-                score++;
-                if(score>=1 && score<=9){
-                    digit1 = new Texture(score+".png");
+        if(hasCrashed==0){
+            for(Tube tube : tubes){
+                if(camera.position.x - (camera.viewportWidth/2) > tube.getPosTopTube().x + tube.getTopTube().getWidth()){
+                    val = val + TUBE_SPACING;
+                    tube.reposition(val);
+                    //tube.reposition(tube.getPosTopTube().x + ((Tube.TUBE_WIDTH + TUBE_SPACING) * TUBE_COUNT));
                 }
-                else if(score>=10 && score<=99){
-                    String[] rutas = digitosContador(score);
-                    digit1 = new Texture(rutas[0]);
-                    digit2 = new Texture(rutas[1]);
-                }
-                else if(score>=100 && score<=999){
-                    String[] rutas = digitosContador(score);
-                    digit1 = new Texture(rutas[0]);
-                    digit2 = new Texture(rutas[1]);
-                    digit3 = new Texture(rutas[2]);
-                }
-            }
+                if(tube.collides(bird.getBounds())){ //si choca con un tubo
 
+                    crash.play(0.1f);
+                    hasCrashed=1;
+                    bird.setItsGameOver(1);
+                    bird.gameOverFrame();
+                    //gsm.set(new PlayState(gsm));
+                    break; //borrar si no funciona
+                }
+
+                if(tube.isPassed(bird.getPosition())){
+                    tubepassed.play(0.1f);
+                    score++;
+                    if(score>=1 && score<=9){
+                        digit1 = new Texture(score+".png");
+                    }
+                    else if(score>=10 && score<=99){
+                        String[] rutas = digitosContador(score);
+                        digit1 = new Texture(rutas[0]);
+                        digit2 = new Texture(rutas[1]);
+                    }
+                    else if(score>=100 && score<=999){
+                        String[] rutas = digitosContador(score);
+                        digit1 = new Texture(rutas[0]);
+                        digit2 = new Texture(rutas[1]);
+                        digit3 = new Texture(rutas[2]);
+                    }
+                }
+
+            }
         }
 
         //Matar al pájaro cuando toque el ground
         if(bird.getPosition().y <= ground.getHeight() + GROUND_Y_OFFSET){
-            crash.play(0.1f);
-            gsm.set(new PlayState(gsm));
+            if(hasCrashed==1 || hasCrashed==0){ //1 indica que ya chocó con un tubo, 0 indica que solo chocó con el piso de un solo
+                crash.play(0.1f);
+                hasCrashed=2;
+            }
+            bird.setItsGameOver(1);
+            bird.gameOverFrame();
+            bird.getPosition().y = ground.getHeight()+GROUND_Y_OFFSET;
+            showGameOverInRender = 1;
+            //gsm.set(new PlayState(gsm));
         }
         camera.update();
     }
@@ -142,13 +162,21 @@ public class PlayState extends Estado{
         sb.setProjectionMatrix(camera.combined);
         sb.begin();
         sb.draw(bg, camera.position.x - (camera.viewportWidth/2), 0);
-        sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
-
-        for(Tube tube : tubes){
-            sb.draw(tube.getTopTube(), tube.getPosTopTube().x, tube.getPosTopTube().y);
-            sb.draw(tube.getBottomTube(), tube.getPosBotTube().x, tube.getPosBotTube().y);
+        //sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
+        if(hasCrashed==0){
+            sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
+            for(Tube tube : tubes){
+                sb.draw(tube.getTopTube(), tube.getPosTopTube().x, tube.getPosTopTube().y);
+                sb.draw(tube.getBottomTube(), tube.getPosBotTube().x, tube.getPosBotTube().y);
+            }
         }
-
+        else{//Para que se dibujen los tubos primero y encima el pájaro
+            for(Tube tube : tubes){
+                sb.draw(tube.getTopTube(), tube.getPosTopTube().x, tube.getPosTopTube().y);
+                sb.draw(tube.getBottomTube(), tube.getPosBotTube().x, tube.getPosBotTube().y);
+            }
+            sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
+        }
         //fontScore.draw(sb, String.valueOf(score), camera.position.x - (camera.viewportWidth/2) + 85, 380);
         if(String.valueOf(score).length()==1){
             sb.draw(digit1, camera.position.x - (camera.viewportWidth/2) + 80, 320);
@@ -165,6 +193,10 @@ public class PlayState extends Estado{
 
         sb.draw(ground, groundPos1.x, groundPos1.y);
         sb.draw(ground, groundPos2.x, groundPos2.y);
+
+        if(showGameOverInRender==1){
+            fontgameover.draw(sb, "Game Over\n\nScore: "+score, camera.position.x - (camera.viewportWidth/2) + 20, 300);
+        }
         sb.end();
     }
 
@@ -177,9 +209,12 @@ public class PlayState extends Estado{
             tube.dispose();
         }
         tubepassed.dispose();
+        crash.dispose();
         digit1.dispose();
         digit2.dispose();
         digit3.dispose();
+        fontgameover.dispose();
+        fontGenerator.dispose();
         //System.out.println("Play state disposed");
     }
 

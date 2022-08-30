@@ -36,6 +36,7 @@ public class Bird {
         flap = Gdx.audio.newSound(Gdx.files.internal("wingsound.mp3"));//sfx_wing.ogg
     }
 
+    private int itsGameOver = 0; //flag
     public void update(float dt){
         if(startmoving==0){
             birdAnimation.update(dt);
@@ -46,19 +47,31 @@ public class Bird {
         }
         velocity.scl(dt);
 
-        position.add(MOVEMENT*dt, velocity.y, 0);
+        if(itsGameOver==0){ //0 significa falso, entonces NO es game over todavía
+            position.add(MOVEMENT*dt, velocity.y, 0);
+        }
+        else{ //Ya es game over
+            position.add(0, velocity.y, 0);
+        }
         /*if(movflag==0){
             position.add(0, velocity.y, 0); //position.add(MOVEMENT*dt, velocity.y, 0);
         }
         else{
             position.add(MOVEMENT*dt, velocity.y, 0);
         }*/
-
         if(position.y<startmoving){
             position.y=startmoving;
         }
         velocity.scl(1/dt);
         bounds.setPosition(position.x, position.y);
+    }
+
+    public void setItsGameOver(int itsGameOver){
+        this.itsGameOver = itsGameOver;
+    }
+
+    public void gameOverFrame(){
+        birdAnimation.setFrameCount(1);
     }
 
     public Vector3 getPosition() {
