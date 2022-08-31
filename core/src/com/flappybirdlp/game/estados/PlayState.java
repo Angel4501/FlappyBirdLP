@@ -10,7 +10,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.flappybirdlp.game.FlappyBirdLP;
 import com.flappybirdlp.game.sprites.Bird;
@@ -23,6 +25,7 @@ public class PlayState extends Estado{
     private static final int TUBE_SPACING = 137;//135
     private static final int TUBE_COUNT = 4;
     private static final int GROUND_Y_OFFSET = -50;
+    private int flag=0, iterator=0;
     private Array<Tube> tubes;
     Preferences prefs = Gdx.app.getPreferences("My Preferences");
 
@@ -99,6 +102,20 @@ public class PlayState extends Estado{
         if(Gdx.input.justTouched()){
             if(hasCrashed==0){
                 bird.jump();
+            }
+            if (showGameOverInRender==1){
+                Vector3 tmp= new Vector3(Gdx.input.getX(),Gdx.input.getY(),0);
+                camera.unproject(tmp);
+                Rectangle retryBounds=new Rectangle(camera.position.x - (camera.viewportWidth/2) + 30, 110,retrybtn.getWidth(),retrybtn.getHeight());
+                if(retryBounds.contains(tmp.x, tmp.y)){ //Si le da al botón, lo lleva al getReady state
+                    retrybtn = new Texture("playbtnpressed.png");
+                    flag=1;
+                }
+                Rectangle homeBounds=new Rectangle(camera.position.x - (camera.viewportWidth/2) + 120, 110,homebtn.getWidth(),homebtn.getHeight());
+                if(homeBounds.contains(tmp.x, tmp.y)){ //Si le da al botón, lo lleva al getReady state
+                    homebtn = new Texture("homepressed.png");
+                    flag=2;
+                }
             }
 
         }
@@ -227,6 +244,21 @@ public class PlayState extends Estado{
             fontgameover.getData().setScale(0.5f);
             fontgameover.draw(sb, "Retry",camera.position.x - (camera.viewportWidth/2) + 30, 110);
             fontgameover.draw(sb, "Home",camera.position.x - (camera.viewportWidth/2) + 120, 110);
+            if(flag ==1){
+                iterator++;
+                if (iterator>=2){
+                    iterator=0;
+                    gsm.set(new PlayState(gsm));
+                }
+            }
+            if (flag == 2){
+                iterator++;
+                if (iterator>=2){
+                    iterator=0;
+                    gsm.set(new EstadoMenu(gsm));
+                }
+
+            }
         }
         sb.end();
     }
