@@ -1,8 +1,10 @@
 package com.flappybirdlp.game.estados;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -22,13 +24,18 @@ public class PlayState extends Estado{
     private static final int TUBE_COUNT = 4;
     private static final int GROUND_Y_OFFSET = -50;
     private Array<Tube> tubes;
+    Preferences prefs = Gdx.app.getPreferences("My Preferences");
 
     private Bird bird;
     private Texture bg, digit1, digit2, digit3; //background
     private Texture ground;
     private Vector2 groundPos1, groundPos2;
+    private Texture retrybtn;
+    private Texture homebtn;
+
 
     private int val=0, score;
+    private int highscore;
     private int hasCrashed; //0 si el pájaro aún no ha chocado con un tubo, 1 si ya chocó con un tubo
     private Sound crash, tubepassed;
     private BitmapFont fontgameover; //COMENTAR A PARTIR DE AQUÍ SI SE VE MAL
@@ -37,6 +44,11 @@ public class PlayState extends Estado{
 
     public PlayState(GameStateManager gsm) {
         super(gsm);
+        if (prefs.getInteger("highscore")> 0){
+            highscore = prefs.getInteger("highscore");
+        }else{
+            highscore=0;
+        }
         bird = new Bird(30,300);
         camera.setToOrtho(false, FlappyBirdLP.WIDTH/2, FlappyBirdLP.HEIGHT/2);
         bg = new Texture("playbackground.png");
@@ -95,6 +107,7 @@ public class PlayState extends Estado{
     private int showGameOverInRender = 0;
     @Override
     public void update(float dt) {
+
         handleInput();
         updateGround();
         bird.update(dt);
@@ -148,6 +161,10 @@ public class PlayState extends Estado{
                 crash.play(0.1f);
                 hasCrashed=2;
             }
+            if (score > highscore) {
+                prefs.putInteger("highscore", score);
+                prefs.flush();
+            }
             bird.setItsGameOver(1);
             bird.gameOverFrame();
             bird.getPosition().y = ground.getHeight()+GROUND_Y_OFFSET;
@@ -195,7 +212,21 @@ public class PlayState extends Estado{
         sb.draw(ground, groundPos2.x, groundPos2.y);
 
         if(showGameOverInRender==1){
-            fontgameover.draw(sb, "Game Over\n\nScore: "+score, camera.position.x - (camera.viewportWidth/2) + 20, 300);
+            fontgameover.setColor(Color.GOLD);
+            fontgameover.getData().setScale(1);
+            fontgameover.draw(sb, "Game Over", camera.position.x - (camera.viewportWidth/2) + 20, 300);
+            fontgameover.setColor(Color.WHITE);
+            fontgameover.getData().setScale(0.8f);
+            fontgameover.draw(sb, "Best:"+ highscore + "\n\nScore: "+score,camera.position.x - (camera.viewportWidth/2) + 20, 250);
+
+
+            retrybtn = resize("playbtn.png", 60, 50);
+            homebtn = resize("home.png", 60, 50);
+            sb.draw(retrybtn, camera.position.x - (camera.viewportWidth/2) + 20, 120);
+            sb.draw(homebtn, camera.position.x - (camera.viewportWidth/2) + 110, 120);
+            fontgameover.getData().setScale(0.5f);
+            fontgameover.draw(sb, "Retry",camera.position.x - (camera.viewportWidth/2) + 30, 110);
+            fontgameover.draw(sb, "Home",camera.position.x - (camera.viewportWidth/2) + 120, 110);
         }
         sb.end();
     }
@@ -213,6 +244,8 @@ public class PlayState extends Estado{
         digit1.dispose();
         digit2.dispose();
         digit3.dispose();
+        retrybtn.dispose();
+        homebtn.dispose();
         fontgameover.dispose();
         fontGenerator.dispose();
         //System.out.println("Play state disposed");
@@ -225,6 +258,17 @@ public class PlayState extends Estado{
         if(camera.position.x - (camera.viewportWidth/2) > groundPos2.x + ground.getWidth()){
             groundPos2.add(ground.getWidth()*2, 0);
         }
+    }
+
+    private Texture resize (String png, int x, int y){
+        Pixmap sizefull = new Pixmap(Gdx.files.internal(png));
+        Pixmap newsize = new Pixmap(x, y, sizefull.getFormat());
+        newsize.drawPixmap(sizefull,
+                0, 0, sizefull.getWidth(), sizefull.getHeight(),
+                0, 0, newsize.getWidth(), newsize.getHeight()
+        );
+        Texture texture = new Texture(newsize);
+        return texture;
     }
 
     private String[] digitosContador(int numero){
