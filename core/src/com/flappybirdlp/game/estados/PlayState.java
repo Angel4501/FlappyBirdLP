@@ -70,13 +70,8 @@ public class PlayState extends Estado{
         /*fontScore.setColor(Color.WHITE);
         fontScore.getData().setScale(3);*/
 
-        fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("flappy-font.ttf"));//"OpenSans-ExtraBold.ttf"
-        fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        fontParameter.size=25;
-        fontParameter.borderWidth=3;
-        //fontParameter.color = Color.WHITE;
-        fontParameter.borderColor = Color.BLACK;
-        fontgameover = fontGenerator.generateFont(fontParameter);
+
+        font_color(Color.WHITE, Color.BLACK);
         tubes = new Array<Tube>();
         val=0;
         for(int i=1; i<=TUBE_COUNT; i++){
@@ -235,13 +230,19 @@ public class PlayState extends Estado{
             fontgameover.draw(sb, "Game Over", camera.position.x - (camera.viewportWidth/2) + 20, 300);
             fontgameover.setColor(Color.WHITE);
             fontgameover.getData().setScale(0.8f);
-            fontgameover.draw(sb, "Best: "+ highscore,camera.position.x - (camera.viewportWidth/2) + 20, 250);
-            if (score == highscore && highscore!= 0){
-                fontgameover.getData().setScale(0.5f);
 
-                fontgameover.draw(sb, "(NEW)",camera.position.x - (camera.viewportWidth/2) + 130, 255);
+            if (score == highscore && highscore!= 0){
+                fontgameover.draw(sb, "Best: "+ highscore,camera.position.x - (camera.viewportWidth/2) + 75, 250);
+                font_color(Color.RED, Color.BLACK);
+                fontgameover.getData().setScale(0.8f);
+                fontgameover.draw(sb, "NEW",camera.position.x - (camera.viewportWidth/2) + 20, 250);
+                font_color(Color.WHITE, Color.BLACK);
                 fontgameover.getData().setScale(0.8f);
             }
+            else{
+                fontgameover.draw(sb, "Best: "+ highscore,camera.position.x - (camera.viewportWidth/2) + 20, 250);
+            }
+            fontgameover.getData().setScale(0.8f);
             fontgameover.draw(sb, "\n\nScore: "+score,camera.position.x - (camera.viewportWidth/2) + 20, 245);
 
             if(flag!=1){
@@ -257,6 +258,8 @@ public class PlayState extends Estado{
             else{
                 homebtn = resize("home_pressed.png", 60, 50);
             }
+
+
             fontgameover.getData().setScale(0.5f);
             fontgameover.draw(sb, "Retry",camera.position.x - (camera.viewportWidth/2) + 30, 110);
             fontgameover.draw(sb, "Home",camera.position.x - (camera.viewportWidth/2) + 120, 110);
@@ -310,6 +313,16 @@ public class PlayState extends Estado{
         if(camera.position.x - (camera.viewportWidth/2) > groundPos2.x + ground.getWidth()){
             groundPos2.add(ground.getWidth()*2, 0);
         }
+    }
+
+    private void font_color (Color text, Color border){// cambiar color de font y borde
+        fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("flappy-font.ttf"));//"OpenSans-ExtraBold.ttf"
+        fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        fontParameter.size=25;
+        fontParameter.borderWidth=3;
+        fontParameter.borderColor = border;
+        fontParameter.color = text;
+        fontgameover = fontGenerator.generateFont(fontParameter);
     }
 
     private Texture resize (String png, int x, int y){
