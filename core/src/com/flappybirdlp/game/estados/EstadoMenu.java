@@ -101,6 +101,7 @@ public class EstadoMenu extends Estado{
         playBtn.dispose();
         birdFirstScreen.dispose();
         startTitle.dispose();
+        music.dispose();
         //System.out.println("Menu State disposed");
     }
 }

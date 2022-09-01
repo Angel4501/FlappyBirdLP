@@ -301,8 +301,7 @@ public class PlayState extends Estado{
         digit2.dispose();
         digit3.dispose();
         retrybtn.dispose();
-        homebtn.dispose();
-
+        //homebtn.dispose();
         //System.out.println("Play state disposed");
     }
 
