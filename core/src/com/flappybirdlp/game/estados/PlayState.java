@@ -180,6 +180,7 @@ public class PlayState extends Estado{
             }
             if (score > highscore) {
                 prefs.putInteger("highscore", score);
+                highscore= score;
                 prefs.flush();
             }
             bird.setItsGameOver(1);
@@ -234,7 +235,14 @@ public class PlayState extends Estado{
             fontgameover.draw(sb, "Game Over", camera.position.x - (camera.viewportWidth/2) + 20, 300);
             fontgameover.setColor(Color.WHITE);
             fontgameover.getData().setScale(0.8f);
-            fontgameover.draw(sb, "Best: "+ highscore + "\n\nScore: "+score,camera.position.x - (camera.viewportWidth/2) + 20, 250);
+            fontgameover.draw(sb, "Best: "+ highscore,camera.position.x - (camera.viewportWidth/2) + 20, 250);
+            if (score == highscore && highscore!= 0){
+                fontgameover.getData().setScale(0.5f);
+
+                fontgameover.draw(sb, "(NEW)",camera.position.x - (camera.viewportWidth/2) + 130, 255);
+                fontgameover.getData().setScale(0.8f);
+            }
+            fontgameover.draw(sb, "\n\nScore: "+score,camera.position.x - (camera.viewportWidth/2) + 20, 245);
 
             if(flag!=1){
                 retrybtn = resize("playbtn.png", 60, 50);
@@ -249,12 +257,12 @@ public class PlayState extends Estado{
             else{
                 homebtn = resize("home_pressed.png", 60, 50);
             }
-
-            sb.draw(retrybtn, camera.position.x - (camera.viewportWidth/2) + 20, 120);
-            sb.draw(homebtn, camera.position.x - (camera.viewportWidth/2) + 110, 120);
             fontgameover.getData().setScale(0.5f);
             fontgameover.draw(sb, "Retry",camera.position.x - (camera.viewportWidth/2) + 30, 110);
             fontgameover.draw(sb, "Home",camera.position.x - (camera.viewportWidth/2) + 120, 110);
+            sb.draw(retrybtn, camera.position.x - (camera.viewportWidth/2) + 20, 120);
+            sb.draw(homebtn, camera.position.x - (camera.viewportWidth/2) + 110, 120);
+
             if(flag ==1){
                 iterator++;
                 if (iterator>=8){
@@ -276,6 +284,8 @@ public class PlayState extends Estado{
 
     @Override
     public void dispose() {
+        fontGenerator.dispose();
+        fontgameover.dispose();
         bg.dispose();
         bird.dispose();
         ground.dispose();
@@ -289,8 +299,7 @@ public class PlayState extends Estado{
         digit3.dispose();
         retrybtn.dispose();
         homebtn.dispose();
-        fontgameover.dispose();
-        fontGenerator.dispose();
+
         //System.out.println("Play state disposed");
     }
 
