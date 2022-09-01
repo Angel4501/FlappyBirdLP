@@ -19,7 +19,7 @@ public class GetReady extends Estado{
 
     public GetReady(GameStateManager gsm) {
         super(gsm);
-        FlappyBirdLP.music.stop();
+        EstadoMenu.music.stop();
         //FlappyBirdLP.music.play();
         //startTime = System.currentTimeMillis();
         bird = new Bird(33,300);

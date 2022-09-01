@@ -18,16 +18,16 @@ public class FlappyBirdLP extends ApplicationAdapter {
 	private GameStateManager gsm;
 	private SpriteBatch batch;
 
-	public static Music music;
+	//public static Music music;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		gsm = new GameStateManager();
-		music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
+		/*music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
 		music.setLooping(true);
 		music.setVolume(0.1f);
-		music.play();
+		music.play();*/
 		Gdx.gl.glClearColor(1, 0, 0, 1);
 		//gsm.push(new MenuState(gsm));
 		gsm.push(new EstadoMenu(gsm));
@@ -48,7 +48,7 @@ public class FlappyBirdLP extends ApplicationAdapter {
 	@Override
 	public void dispose() {
 		super.dispose();
-		music.dispose();
+		//music.dispose();
 	}
 
 	//@Override

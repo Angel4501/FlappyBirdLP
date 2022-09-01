@@ -113,7 +113,7 @@ public class PlayState extends Estado{
                 }
                 Rectangle homeBounds=new Rectangle(camera.position.x - (camera.viewportWidth/2) + 120, 110,homebtn.getWidth(),homebtn.getHeight());
                 if(homeBounds.contains(tmp.x, tmp.y)){ //Si le da al botón, lo lleva al getReady state
-                    homebtn = new Texture("homepressed.png");
+                    homebtn = new Texture("home_pressed.png");
                     flag=2;
                 }
             }
@@ -234,11 +234,22 @@ public class PlayState extends Estado{
             fontgameover.draw(sb, "Game Over", camera.position.x - (camera.viewportWidth/2) + 20, 300);
             fontgameover.setColor(Color.WHITE);
             fontgameover.getData().setScale(0.8f);
-            fontgameover.draw(sb, "Best:"+ highscore + "\n\nScore: "+score,camera.position.x - (camera.viewportWidth/2) + 20, 250);
+            fontgameover.draw(sb, "Best: "+ highscore + "\n\nScore: "+score,camera.position.x - (camera.viewportWidth/2) + 20, 250);
 
+            if(flag!=1){
+                retrybtn = resize("playbtn.png", 60, 50);
+            }
+            else{
+                retrybtn = resize("playbtnpressed.png", 60, 50);
+            }
 
-            retrybtn = resize("playbtn.png", 60, 50);
-            homebtn = resize("home.png", 60, 50);
+            if(flag!=2){
+                homebtn = resize("home.png", 60, 50);
+            }
+            else{
+                homebtn = resize("home_pressed.png", 60, 50);
+            }
+
             sb.draw(retrybtn, camera.position.x - (camera.viewportWidth/2) + 20, 120);
             sb.draw(homebtn, camera.position.x - (camera.viewportWidth/2) + 110, 120);
             fontgameover.getData().setScale(0.5f);
@@ -246,9 +257,9 @@ public class PlayState extends Estado{
             fontgameover.draw(sb, "Home",camera.position.x - (camera.viewportWidth/2) + 120, 110);
             if(flag ==1){
                 iterator++;
-                if (iterator>=2){
+                if (iterator>=8){
                     iterator=0;
-                    gsm.set(new PlayState(gsm));
+                    gsm.set(new GetReady(gsm));
                 }
             }
             if (flag == 2){

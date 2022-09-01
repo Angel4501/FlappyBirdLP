@@ -1,6 +1,7 @@
 package com.flappybirdlp.game.estados;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -14,9 +15,14 @@ public class EstadoMenu extends Estado{
     private Texture birdFirstScreen;
     private int cont=3, i=0;
     private int[] array = {30, 25, 35};
+    public static Music music;
 
     public EstadoMenu(GameStateManager gsm) {
         super(gsm);
+        music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
+        music.setLooping(true);
+        music.setVolume(0.1f);
+        music.play();
         //camera.setToOrtho(false, FlappyBirdLP.WIDTH/2, FlappyBirdLP.HEIGHT/2);
         camera.setToOrtho(false, FlappyBirdLP.WIDTH, FlappyBirdLP.HEIGHT);
         background = new Texture("background.png");
