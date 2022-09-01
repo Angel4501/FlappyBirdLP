@@ -25,7 +25,7 @@ public class PlayState extends Estado{
     private static final int TUBE_SPACING = 137;//135
     private static final int TUBE_COUNT = 4;
     private static final int GROUND_Y_OFFSET = -50;
-    private int flag=0, iterator=0;
+    private int flag=0, iterator=0, hi_flag;
     private Array<Tube> tubes;
     Preferences prefs = Gdx.app.getPreferences("My Preferences");
 
@@ -65,6 +65,7 @@ public class PlayState extends Estado{
         tubepassed = Gdx.audio.newSound(Gdx.files.internal("pointsound.mp3"));
 
         score=0;
+        hi_flag=0;
         hasCrashed = 0;
         fontgameover = new BitmapFont();
         /*fontScore.setColor(Color.WHITE);
@@ -176,6 +177,7 @@ public class PlayState extends Estado{
             if (score > highscore) {
                 prefs.putInteger("highscore", score);
                 highscore= score;
+                hi_flag = 1;
                 prefs.flush();
             }
             bird.setItsGameOver(1);
@@ -231,7 +233,7 @@ public class PlayState extends Estado{
             fontgameover.setColor(Color.WHITE);
             fontgameover.getData().setScale(0.8f);
 
-            if (score == highscore && highscore!= 0){
+            if (hi_flag == 1){
                 fontgameover.draw(sb, "Best: "+ highscore,camera.position.x - (camera.viewportWidth/2) + 75, 250);
                 font_color(Color.RED, Color.BLACK);
                 fontgameover.getData().setScale(0.8f);
