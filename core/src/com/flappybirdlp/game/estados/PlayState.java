@@ -18,6 +18,8 @@ import com.flappybirdlp.game.FlappyBirdLP;
 import com.flappybirdlp.game.sprites.Bird;
 import com.flappybirdlp.game.sprites.Tube;
 
+import java.util.Random;
+
 import jdk.internal.misc.TerminatingThreadLocal;
 import sun.font.TrueTypeFont;
 
@@ -35,15 +37,21 @@ public class PlayState extends Estado{
     private Vector2 groundPos1, groundPos2;
     private Texture retrybtn;
     private Texture homebtn;
-
+    private Texture powerup;
 
     private int val=0, score;
     private int highscore;
     private int hasCrashed; //0 si el pájaro aún no ha chocado con un tubo, 1 si ya chocó con un tubo
-    private Sound crash, tubepassed;
+    private Sound crash, tubepassed, powerupsound;
     private BitmapFont fontgameover; //COMENTAR A PARTIR DE AQUÍ SI SE VE MAL
     private FreeTypeFontGenerator fontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
+    private Rectangle powerupbound;
+    private static Random rand;
+    private static int max, min;
+    private int limits;
+    private int dynamicpowerupflag;
+    //private int position;
 
     public PlayState(GameStateManager gsm) {
         super(gsm);
@@ -63,6 +71,7 @@ public class PlayState extends Estado{
 
         crash = Gdx.audio.newSound(Gdx.files.internal("hit.mp3"));
         tubepassed = Gdx.audio.newSound(Gdx.files.internal("pointsound.mp3"));
+        powerupsound = Gdx.audio.newSound(Gdx.files.internal("powerupsound.mp3"));
 
         score=0;
         hi_flag=0;
@@ -70,7 +79,13 @@ public class PlayState extends Estado{
         fontgameover = new BitmapFont();
         /*fontScore.setColor(Color.WHITE);
         fontScore.getData().setScale(3);*/
-
+        //POWERUP
+        powerup = resize("hammer.png", 34, 24);
+        powerupbound = new Rectangle(0,0,0,0);
+        rand = new Random();
+        min = 5; max = 7;
+        //min = randomNumber();//BORRAR
+        limits=randomNumber();
 
         font_color(Color.WHITE, Color.BLACK);
         tubes = new Array<Tube>();
@@ -118,6 +133,77 @@ public class PlayState extends Estado{
     }
 
     private int showGameOverInRender = 0;
+    private int flagforpowerupsound = 0;
+    private int values(){
+        //Random random = new Random();
+        int r = (int)Math.floor(Math.random()*(3-1+1)+1);//entre 0 y 2
+        switch (r){
+            case 1:
+                if(score>=5 && score<=8){
+                    return 10;
+                }
+                else if(score>=10 && score<=13){
+                    return 15; //se mostraría el powerup apartir de score 16
+                }
+                else if(score>=15 && score<=18){
+                    return 20;
+                }
+                else if(score>=20 && score<=23){
+                    return 25;
+                }
+                else if(score>=25 && score<=28){
+                    return 30;
+                }
+                else if(score>=30 && score<=33){
+                    return 35;
+                }
+                break;
+            case 2:
+                if(score>=5 && score<=8){
+                    return 11;
+                }
+                else if(score>=10 && score<=13){
+                    return 16; //se mostraría el powerup apartir de score 17
+                }
+                else if(score>=15 && score<=18){
+                    return 21;
+                }
+                else if(score>=20 && score<=23){
+                    return 26;
+                }
+                else if(score>=25 && score<=28){
+                    return 31;
+                }
+                else if(score>=30 && score<=33){
+                    return 36;
+                }
+                break;
+            case 3:
+                if(score>=5 && score<=8){
+                    return 12;
+                }
+                else if(score>=10 && score<=13){
+                    return 17; //se mostraría el powerup apartir de score 18
+                }
+                else if(score>=15 && score<=18){
+                    return 22;
+                }
+                else if(score>=20 && score<=23){
+                    return 27;
+                }
+                else if(score>=25 && score<=28){
+                    return 32;
+                }
+                else if(score>=30 && score<=33){
+                    return 37;
+                }
+                break;
+            default:
+                break;
+        }
+        return 0;
+    }
+
     @Override
     public void update(float dt) {
 
@@ -137,18 +223,38 @@ public class PlayState extends Estado{
                     //tube.reposition(tube.getPosTopTube().x + ((Tube.TUBE_WIDTH + TUBE_SPACING) * TUBE_COUNT));
                 }
                 if(tube.collides(bird.getBounds())){ //si choca con un tubo
-
                     crash.play(0.1f);
                     hasCrashed=1;
                     bird.setItsGameOver(1);
                     bird.gameOverFrame();
-                    //gsm.set(new PlayState(gsm));
                     break; //borrar si no funciona
+                }
+                if(getsPowerUp(bird.getBounds())){ //Si toca el powerup
+                    //powerup = new Texture("null.png");
+                    if(flagforpowerupsound==0){
+                        powerupsound.play(0.1f);
+                        flagforpowerupsound=1;
+                        //powerup = new Texture("hammer.png");
+                    }
+                    //max = 12; //max+=5; max = 12
+                    //min = 10; //min+=5; min = 10
+                    limits = values(); //limits=10;
+                    dynamicpowerupflag=0;
+                    /*if(dynamicpowerupflag==0){
+                        //limits = randomNumber();
+                        powerup = new Texture("hammer.png");
+                        dynamicpowerupflag=1;
+                    }*/
+                    break;
                 }
 
                 if(tube.isPassed(bird.getPosition())){
                     tubepassed.play(0.1f);
                     score++;
+                    /*if(flagforpowerupsound==1){
+                        powerup = new Texture("hammer.png");
+                    }*/
+                    flagforpowerupsound=0;
                     if(score>=1 && score<=9){
                         digit1 = new Texture(score+".png");
                     }
@@ -166,6 +272,7 @@ public class PlayState extends Estado{
                 }
 
             }
+            //flagforpowerupsound=0;
         }
 
         //Matar al pájaro cuando toque el ground
@@ -189,7 +296,8 @@ public class PlayState extends Estado{
         camera.update();
     }
 
-    @Override
+    //private int limits = 0, dynamicpowerupflag=0; //limit 10 es get(3), limit 11 es get(0), limit 12 es get(1)
+    @Override                                     //limit 5 es get(2), limit 6 es get(3), limit 7 es get(0)
     public void render(SpriteBatch sb) {
         sb.setProjectionMatrix(camera.combined);
         sb.begin();
@@ -197,9 +305,26 @@ public class PlayState extends Estado{
         //sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
         if(hasCrashed==0){
             sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
+            /*if(dynamicpowerupflag==0){
+                limits = randomNumber();
+                dynamicpowerupflag=1;
+            }*/
+            /*if(score>=limits && score<=limits+1){
+                int position = exactPositionForPowerup(limits);
+                powerupbound = new Rectangle(tubes.get(position).getPosTopTube().x+5, tubes.get(position).getPosTopTube().y-45, powerup.getWidth(), powerup.getHeight());
+                sb.draw(powerup, tubes.get(position).getPosTopTube().x+5, tubes.get(position).getPosTopTube().y-45);
+                //max = max + 5;
+                //min = min + 5;
+                //dynamicpowerupflag=0;
+            }*/
             for(Tube tube : tubes){
                 sb.draw(tube.getTopTube(), tube.getPosTopTube().x, tube.getPosTopTube().y);
                 sb.draw(tube.getBottomTube(), tube.getPosBotTube().x, tube.getPosBotTube().y);
+                if(score>=limits && score<=limits+1){//score>=limits && score<=limits+1
+                    int position = exactPositionForPowerup(limits); //exactPositionForPowerup(limits);
+                    powerupbound = new Rectangle(tubes.get(position).getPosTopTube().x+5, tubes.get(position).getPosTopTube().y-45, powerup.getWidth(), powerup.getHeight());
+                    sb.draw(powerup, tubes.get(position).getPosTopTube().x+5, tubes.get(position).getPosTopTube().y-45);
+                }
             }
         }
         else{//Para que se dibujen los tubos primero y encima el pájaro
@@ -303,6 +428,8 @@ public class PlayState extends Estado{
         digit2.dispose();
         digit3.dispose();
         retrybtn.dispose();
+        powerup.dispose();
+        powerupsound.dispose();
         //homebtn.dispose();
         //System.out.println("Play state disposed");
     }
@@ -374,5 +501,26 @@ public class PlayState extends Estado{
             }
         }
         return rutas;
+    }
+
+    private boolean getsPowerUp(Rectangle r){
+        return r.overlaps(powerupbound);
+    }
+
+    private static int randomNumber(){ //Para los rangos de cúando aparece el powerup
+        //rand = new Random();
+        int r = (int)Math.floor(Math.random()*(max-min+1)+min);//rand.nextInt((max - min) + 1) + min;
+        return r;
+    }
+
+    private int exactPositionForPowerup(int limit){
+        int k=-1;
+        for(int i=3; i<=limit; i++){
+            k++;
+            if(k==4){
+                k=0;
+            }
+        }
+        return k;
     }
 }
