@@ -37,6 +37,7 @@ public class GetReady extends Estado{
     @Override
     protected void handleInput() {
         if(Gdx.input.justTouched()){
+            bird.getFlapSound();
             gsm.set(new PlayState(gsm));
         }
     }

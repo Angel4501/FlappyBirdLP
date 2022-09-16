@@ -64,6 +64,7 @@ public class PlayState extends Estado{
         camera.setToOrtho(false, FlappyBirdLP.WIDTH/2, FlappyBirdLP.HEIGHT/2);
         bg = new Texture("playbackground.png");
         bird.setStartmoving(0);
+        bird.jump();
         //gr = new Texture("GetReady.png");
         ground = new Texture("ground.png");
         groundPos1 = new Vector2(camera.position.x - camera.viewportWidth/2, GROUND_Y_OFFSET);
@@ -92,7 +93,7 @@ public class PlayState extends Estado{
         val=0;
         for(int i=1; i<=TUBE_COUNT; i++){
             if(i==1){
-                val=i*300;
+                val=i*350; //i*300;
                 tubes.add(new Tube(val));
             }
             else{
@@ -123,7 +124,7 @@ public class PlayState extends Estado{
                     flag=1;
                 }
                 Rectangle homeBounds=new Rectangle(camera.position.x - (camera.viewportWidth/2) + 120, 110,homebtn.getWidth(),homebtn.getHeight());
-                if(homeBounds.contains(tmp.x, tmp.y)){ //Si le da al botón, lo lleva al getReady state
+                if(homeBounds.contains(tmp.x, tmp.y)){ //Si le da al botón, lo lleva a home
                     homebtn = new Texture("home_pressed.png");
                     flag=2;
                 }
@@ -228,6 +229,15 @@ public class PlayState extends Estado{
                     bird.setItsGameOver(1);
                     bird.gameOverFrame();
                     break; //borrar si no funciona
+                }
+                if(bird.getPosition().y > camera.viewportHeight){ //SI INTENTA IRSE POR ARRIBA
+                    if(bird.getPosition().x >= tube.getPosTopTube().x){ //si choca con un tubo en la parte de arriba de la pantalla
+                        crash.play(0.1f);
+                        hasCrashed=1;
+                        bird.setItsGameOver(1);
+                        bird.gameOverFrame();
+                        break; //borrar si no funciona
+                    }
                 }
                 if(getsPowerUp(bird.getBounds())){ //Si toca el powerup
                     //powerup = new Texture("null.png");

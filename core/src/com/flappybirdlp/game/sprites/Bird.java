@@ -96,6 +96,10 @@ public class Bird {
         velocity.y = 250;
     }
 
+    public void getFlapSound(){
+        flap.play(0.1f);
+    }
+
     public Rectangle getBounds(){
         return bounds;
     }
