@@ -17,11 +17,13 @@ public class Tube {
     private Vector2 posTopTube, posBotTube;
     private Rectangle boundsTop, boundsBot; //para detectar la colisión
     private Random rand;
+    private int score;
 
-    public Tube(float x){
+    public Tube(float x, int score){
         topTube = new Texture("toptube.png");
         bottomTube = new Texture("bottomtube.png");
         rand = new Random();
+        this.score=score;
 
         posTopTube = new Vector2(x, rand.nextInt(FLUCTUATION) + TUBE_GAP + LOWEST_OPENING);
         posBotTube = new Vector2(x, posTopTube.y - TUBE_GAP - bottomTube.getHeight());
@@ -45,6 +47,10 @@ public class Tube {
     public Vector2 getPosBotTube() {
         return posBotTube;
     }
+
+    public int getScore(){return score;}
+
+    public void setScore (int score){ this.score=score;}
 
     public void reposition(float x){
         posTopTube.set(x, rand.nextInt(FLUCTUATION) + LOWEST_OPENING + TUBE_GAP);

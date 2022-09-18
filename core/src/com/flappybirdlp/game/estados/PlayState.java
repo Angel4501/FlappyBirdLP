@@ -27,8 +27,9 @@ public class PlayState extends Estado{
     private static final int TUBE_SPACING = 137;//135
     private static final int TUBE_COUNT = 4;
     private static final int GROUND_Y_OFFSET = -50;
-    private int flag=0, iterator=0, hi_flag;
+    private int flag=0, iterator=0, hi_flag, has_powerup=0, limitplace=5, powerup_margin=0;
     private Array<Tube> tubes;
+    private int verifytube;
     Preferences prefs = Gdx.app.getPreferences("My Preferences");
 
     private Bird bird;
@@ -38,18 +39,20 @@ public class PlayState extends Estado{
     private Texture retrybtn;
     private Texture homebtn;
     private Texture powerup;
+    private Texture block;
 
     private int val=0, score;
     private int highscore;
     private int hasCrashed; //0 si el pájaro aún no ha chocado con un tubo, 1 si ya chocó con un tubo
-    private Sound crash, tubepassed, powerupsound;
+    private Sound crash, tubepassed, powerupsound, blockhit;
     private BitmapFont fontgameover; //COMENTAR A PARTIR DE AQUÍ SI SE VE MAL
     private FreeTypeFontGenerator fontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
     private Rectangle powerupbound;
+    private Rectangle blockbound;
     private static Random rand;
     private static int max, min;
-    private int limits;
+    private int limits, blocklimit;
     private int dynamicpowerupflag;
     //private int position;
 
@@ -60,7 +63,7 @@ public class PlayState extends Estado{
         }else{
             highscore=0;
         }
-        bird = new Bird(30,300);
+        bird = new Bird(30,300, "birdanimation.png");
         camera.setToOrtho(false, FlappyBirdLP.WIDTH/2, FlappyBirdLP.HEIGHT/2);
         bg = new Texture("playbackground.png");
         bird.setStartmoving(0);
@@ -73,6 +76,7 @@ public class PlayState extends Estado{
         crash = Gdx.audio.newSound(Gdx.files.internal("hit.mp3"));
         tubepassed = Gdx.audio.newSound(Gdx.files.internal("pointsound.mp3"));
         powerupsound = Gdx.audio.newSound(Gdx.files.internal("powerupsound.mp3"));
+        blockhit = Gdx.audio.newSound(Gdx.files.internal("block_hit.mp3"));
 
         score=0;
         hi_flag=0;
@@ -81,12 +85,16 @@ public class PlayState extends Estado{
         /*fontScore.setColor(Color.WHITE);
         fontScore.getData().setScale(3);*/
         //POWERUP
-        powerup = resize("hammer.png", 34, 24);
+        powerup = resize("hammer.png", 30, 30);
         powerupbound = new Rectangle(0,0,0,0);
+        block = resize("block.png", 52, 80);
+        blockbound = new Rectangle(0,0,0,0);
         rand = new Random();
         min = 5; max = 7;
         //min = randomNumber();//BORRAR
         limits=randomNumber();
+        powerup_margin= rand.nextInt(11)-5;
+        blocklimit= limits+2;
 
         font_color(Color.WHITE, Color.BLACK);
         tubes = new Array<Tube>();
@@ -94,12 +102,12 @@ public class PlayState extends Estado{
         for(int i=1; i<=TUBE_COUNT; i++){
             if(i==1){
                 val=i*350; //i*300;
-                tubes.add(new Tube(val));
+                tubes.add(new Tube(val,10));
             }
             else{
                 //tubes.add(new Tube(i * (TUBE_SPACING + Tube.TUBE_WIDTH)));
                 val += TUBE_SPACING;
-                tubes.add(new Tube(val));
+                tubes.add(new Tube(val,10));
             }
 
             //tubes.add(new Tube(i * (TUBE_SPACING + Tube.TUBE_WIDTH)));
@@ -140,63 +148,36 @@ public class PlayState extends Estado{
         int r = (int)Math.floor(Math.random()*(3-1+1)+1);//entre 0 y 2
         switch (r){
             case 1:
-                if(score>=5 && score<=8){
-                    return 10;
-                }
-                else if(score>=10 && score<=13){
-                    return 15; //se mostraría el powerup apartir de score 16
-                }
-                else if(score>=15 && score<=18){
-                    return 20;
-                }
-                else if(score>=20 && score<=23){
-                    return 25;
-                }
-                else if(score>=25 && score<=28){
-                    return 30;
-                }
-                else if(score>=30 && score<=33){
-                    return 35;
+                if(mod(score,5)>=0 && mod(score,5)<=3 && score!=0){
+                    if(mod(limitplace, 5)==1){
+                        limitplace--;
+                    }
+                    if(mod(limitplace, 5)==2){
+                        limitplace=limitplace-2;
+                    }
+                    return limitplace;
                 }
                 break;
             case 2:
-                if(score>=5 && score<=8){
-                    return 11;
-                }
-                else if(score>=10 && score<=13){
-                    return 16; //se mostraría el powerup apartir de score 17
-                }
-                else if(score>=15 && score<=18){
-                    return 21;
-                }
-                else if(score>=20 && score<=23){
-                    return 26;
-                }
-                else if(score>=25 && score<=28){
-                    return 31;
-                }
-                else if(score>=30 && score<=33){
-                    return 36;
+                if(mod(score,5)>=0 && mod(score,5)<=3 && score!=0){
+                    if(mod(limitplace, 5)==0){
+                        limitplace++;
+                    }
+                    if(mod(limitplace, 5)==2){
+                        limitplace--;
+                    }
+                    return limitplace;
                 }
                 break;
             case 3:
-                if(score>=5 && score<=8){
-                    return 12;
-                }
-                else if(score>=10 && score<=13){
-                    return 17; //se mostraría el powerup apartir de score 18
-                }
-                else if(score>=15 && score<=18){
-                    return 22;
-                }
-                else if(score>=20 && score<=23){
-                    return 27;
-                }
-                else if(score>=25 && score<=28){
-                    return 32;
-                }
-                else if(score>=30 && score<=33){
-                    return 37;
+                if(mod(score,5)>=0 && mod(score,5)<=3 && score!=0){
+                    if(mod(limitplace, 5)==0){
+                        limitplace=limitplace+2;
+                    }
+                    if(mod(limitplace, 5)==1){
+                        limitplace++;
+                    }
+                    return limitplace;
                 }
                 break;
             default:
@@ -240,15 +221,21 @@ public class PlayState extends Estado{
                     }
                 }
                 if(getsPowerUp(bird.getBounds())){ //Si toca el powerup
+                    has_powerup=1;
                     //powerup = new Texture("null.png");
                     if(flagforpowerupsound==0){
                         powerupsound.play(0.1f);
                         flagforpowerupsound=1;
+                        bird.setAnimation(bird.getPosition().x, bird.getPosition().y,"bird_hammer_animation.png");
+
                         //powerup = new Texture("hammer.png");
                     }
+                    powerupbound= new Rectangle(0,0,0,0);
                     //max = 12; //max+=5; max = 12
                     //min = 10; //min+=5; min = 10
+                    limitplace=limitplace+5;
                     limits = values(); //limits=10;
+                    powerup_margin= rand.nextInt(11)-5;
                     dynamicpowerupflag=0;
                     /*if(dynamicpowerupflag==0){
                         //limits = randomNumber();
@@ -258,9 +245,30 @@ public class PlayState extends Estado{
                     break;
                 }
 
+                if(touchblock(bird.getBounds())){
+                    if (has_powerup==0){
+                        crash.play(0.1f);
+                        hasCrashed=1;
+                        bird.setItsGameOver(1);
+                        bird.gameOverFrame();
+                        break;
+                    }else{
+                        blockhit.play(0.1f);
+                        blocklimit= limits+2;
+                        blockbound= new Rectangle(0,0,0,0);
+                        has_powerup=0;
+                        bird.setAnimation(bird.getPosition().x, bird.getPosition().y,"birdanimation.png");
+
+                    }
+                }
+
                 if(tube.isPassed(bird.getPosition())){
-                    tubepassed.play(0.1f);
-                    score++;
+                    if(tube.getScore()!=score){
+                        tubepassed.play(0.1f);
+                        score++;
+                        tube.setScore(score);
+                    }
+
                     /*if(flagforpowerupsound==1){
                         powerup = new Texture("hammer.png");
                     }*/
@@ -284,6 +292,7 @@ public class PlayState extends Estado{
             }
             //flagforpowerupsound=0;
         }
+
 
         //Matar al pájaro cuando toque el ground
         if(bird.getPosition().y <= ground.getHeight() + GROUND_Y_OFFSET){
@@ -315,6 +324,7 @@ public class PlayState extends Estado{
         //sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
         if(hasCrashed==0){
             sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
+
             /*if(dynamicpowerupflag==0){
                 limits = randomNumber();
                 dynamicpowerupflag=1;
@@ -330,10 +340,16 @@ public class PlayState extends Estado{
             for(Tube tube : tubes){
                 sb.draw(tube.getTopTube(), tube.getPosTopTube().x, tube.getPosTopTube().y);
                 sb.draw(tube.getBottomTube(), tube.getPosBotTube().x, tube.getPosBotTube().y);
+
                 if(score>=limits && score<=limits+1){//score>=limits && score<=limits+1
                     int position = exactPositionForPowerup(limits); //exactPositionForPowerup(limits);
-                    powerupbound = new Rectangle(tubes.get(position).getPosTopTube().x+5, tubes.get(position).getPosTopTube().y-45, powerup.getWidth(), powerup.getHeight());
-                    sb.draw(powerup, tubes.get(position).getPosTopTube().x+5, tubes.get(position).getPosTopTube().y-45);
+                    powerupbound = new Rectangle(tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10), powerup.getWidth(), powerup.getHeight());
+                    sb.draw(powerup, tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10));
+                }
+                if (score>=blocklimit && score<=blocklimit+1){
+                    int position = exactPositionForPowerup(blocklimit);
+                    blockbound = new Rectangle(tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80, block.getWidth(), block.getHeight());
+                    sb.draw(block, tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80);
                 }
             }
         }
@@ -440,6 +456,8 @@ public class PlayState extends Estado{
         retrybtn.dispose();
         powerup.dispose();
         powerupsound.dispose();
+        block.dispose();
+        blockhit.dispose();
         //homebtn.dispose();
         //System.out.println("Play state disposed");
     }
@@ -517,6 +535,10 @@ public class PlayState extends Estado{
         return r.overlaps(powerupbound);
     }
 
+    private boolean touchblock (Rectangle r){
+        return r.overlaps(blockbound);
+    }
+
     private static int randomNumber(){ //Para los rangos de cúando aparece el powerup
         //rand = new Random();
         int r = (int)Math.floor(Math.random()*(max-min+1)+min);//rand.nextInt((max - min) + 1) + min;
@@ -533,4 +555,14 @@ public class PlayState extends Estado{
         }
         return k;
     }
+
+    private int mod(int x, int y)
+    {
+        int result = x % y;
+        if (result < 0)
+            result += y;
+        return result;
+    }
 }
+
+

@@ -22,7 +22,7 @@ public class GetReady extends Estado{
         //EstadoMenu.music.stop();
         //FlappyBirdLP.music.play();
         //startTime = System.currentTimeMillis();
-        bird = new Bird(33,300);
+        bird = new Bird(33,300, "birdanimation.png");
         camera.setToOrtho(false, FlappyBirdLP.WIDTH/2, FlappyBirdLP.HEIGHT/2);
         bg = new Texture("playbackground.png");
         gr = new Texture("GetReady.png");

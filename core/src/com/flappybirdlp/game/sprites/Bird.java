@@ -26,14 +26,12 @@ public class Bird {
         this.startmoving = startmoving;
     }
 
-    public Bird(int x, int y){
+    public Bird(int x, int y, String path){
         position = new Vector3(x, y, 0);
         velocity = new Vector3(0, 0, 0);
+        setAnimation(x, y, path);
         //bird = new Texture("bird.png");
-        texture = new Texture("birdanimation.png");
-        birdAnimation = new Animation(new TextureRegion(texture), 3, 0.5f);
-        bounds = new Rectangle(x, y, texture.getWidth() / 3, texture.getHeight());
-        flap = Gdx.audio.newSound(Gdx.files.internal("wingsound.mp3"));//sfx_wing.ogg
+        //sfx_wing.ogg
     }
 
     private int itsGameOver = 0; //flag
@@ -81,6 +79,13 @@ public class Bird {
     public TextureRegion getTexture() {
         return birdAnimation.getFrame();
 
+    }
+
+    public void setAnimation(float x, float y, String path){
+        texture = new Texture(path);
+        birdAnimation = new Animation(new TextureRegion(texture), 3, 0.5f);
+        bounds = new Rectangle(x, y, 32, 24);
+        flap = Gdx.audio.newSound(Gdx.files.internal("wingsound.mp3"));
     }
 
     public Texture TextureForGetReady(){ //Que retorne
