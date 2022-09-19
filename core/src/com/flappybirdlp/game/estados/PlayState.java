@@ -29,6 +29,7 @@ public class PlayState extends Estado{
     private static final int GROUND_Y_OFFSET = -50;
     private int flag=0, iterator=0, hi_flag, has_powerup=0, limitplace=5, powerup_margin=0;
     private Array<Tube> tubes;
+    private int fps = 60; //limit to 60 fps
     private int verifytube;
     Preferences prefs = Gdx.app.getPreferences("My Preferences");
 
@@ -315,9 +316,12 @@ public class PlayState extends Estado{
         camera.update();
     }
 
+
+
     //private int limits = 0, dynamicpowerupflag=0; //limit 10 es get(3), limit 11 es get(0), limit 12 es get(1)
     @Override                                     //limit 5 es get(2), limit 6 es get(3), limit 7 es get(0)
     public void render(SpriteBatch sb) {
+
         sb.setProjectionMatrix(camera.combined);
         sb.begin();
         sb.draw(bg, camera.position.x - (camera.viewportWidth/2), 0);
@@ -357,9 +361,13 @@ public class PlayState extends Estado{
             for(Tube tube : tubes){
                 sb.draw(tube.getTopTube(), tube.getPosTopTube().x, tube.getPosTopTube().y);
                 sb.draw(tube.getBottomTube(), tube.getPosBotTube().x, tube.getPosBotTube().y);
+
+                if(score>=limits && score<=limits+1){//score>=limits && score<=limits+1
+                    int position = exactPositionForPowerup(limits); //exactPositionForPowerup(limits);
+                    sb.draw(powerup, tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10));
+                }
                 if (score>=blocklimit && score<=blocklimit+1){
                     int position = exactPositionForPowerup(blocklimit);
-                    blockbound = new Rectangle(tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80, block.getWidth(), block.getHeight());
                     sb.draw(block, tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80);
                 }
             }
@@ -441,6 +449,7 @@ public class PlayState extends Estado{
             }
         }
         sb.end();
+        sleep(fps);
     }
 
     @Override
@@ -548,6 +557,21 @@ public class PlayState extends Estado{
         //rand = new Random();
         int r = (int)Math.floor(Math.random()*(max-min+1)+min);//rand.nextInt((max - min) + 1) + min;
         return r;
+    }
+
+    private long diff, start = System.currentTimeMillis();
+
+    public void sleep(int fps) {
+        if(fps>0){
+            diff = System.currentTimeMillis() - start;
+            long targetDelay = 1000/fps;
+            if (diff < targetDelay) {
+                try{
+                    Thread.sleep(targetDelay - diff);
+                } catch (InterruptedException e) {}
+            }
+            start = System.currentTimeMillis();
+        }
     }
 
     private int exactPositionForPowerup(int limit){
