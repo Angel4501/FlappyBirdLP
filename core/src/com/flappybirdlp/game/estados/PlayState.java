@@ -357,6 +357,11 @@ public class PlayState extends Estado{
             for(Tube tube : tubes){
                 sb.draw(tube.getTopTube(), tube.getPosTopTube().x, tube.getPosTopTube().y);
                 sb.draw(tube.getBottomTube(), tube.getPosBotTube().x, tube.getPosBotTube().y);
+                if (score>=blocklimit && score<=blocklimit+1){
+                    int position = exactPositionForPowerup(blocklimit);
+                    blockbound = new Rectangle(tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80, block.getWidth(), block.getHeight());
+                    sb.draw(block, tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80);
+                }
             }
             sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
         }
