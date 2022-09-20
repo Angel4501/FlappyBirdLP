@@ -135,6 +135,8 @@ public class EstadoMenu extends Estado{
         handleInput();
     }
 
+
+
     @Override
     public void render(SpriteBatch sb) {
         sb.setProjectionMatrix(camera.combined);
@@ -157,7 +159,7 @@ public class EstadoMenu extends Estado{
             if(cont==4){
                 cont=1;
             }
-            birdFirstScreen = new Texture("bird"+cont+".png");
+            birdFirstScreen = resize("bird"+cont+".png",102,72);
             cont++;
             //System.out.println("hello");
         } catch (InterruptedException e) {
@@ -252,4 +254,6 @@ public class EstadoMenu extends Estado{
         infotext.dispose();
         //System.out.println("Menu State disposed");
     }
+
+
 }

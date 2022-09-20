@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -20,14 +19,12 @@ import com.flappybirdlp.game.sprites.Tube;
 
 import java.util.Random;
 
-import jdk.internal.misc.TerminatingThreadLocal;
-import sun.font.TrueTypeFont;
-
 public class PlayState extends Estado{
     private static final int TUBE_SPACING = 137;//135
     private static final int TUBE_COUNT = 4;
     private static final int GROUND_Y_OFFSET = -50;
-    private int flag=0, iterator=0, hi_flag, has_powerup=0, limitplace=5, powerup_margin=0;
+    private int flag=0, iterator=0, hi_flag, has_powerup=0, limitplace=5;
+    private float powerup_margin=0;
     private Array<Tube> tubes;
     private int fps = 60; //limit to 60 fps
     private int verifytube;
