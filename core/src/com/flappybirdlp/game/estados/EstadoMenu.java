@@ -38,7 +38,7 @@ public class EstadoMenu extends Estado{
         super(gsm);
         music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
         music.setLooping(true);
-        music.setVolume(0.1f);
+        music.setVolume(0.2f);
         music.play();
         //camera.setToOrtho(false, FlappyBirdLP.WIDTH/2, FlappyBirdLP.HEIGHT/2);
         camera.setToOrtho(false, FlappyBirdLP.WIDTH, FlappyBirdLP.HEIGHT);
