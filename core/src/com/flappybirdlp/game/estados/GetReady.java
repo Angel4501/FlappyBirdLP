@@ -7,6 +7,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.flappybirdlp.game.FlappyBirdLP;
 import com.flappybirdlp.game.sprites.Bird;
 
+import java.util.Random;
+
 public class GetReady extends Estado{
     private static final int GROUND_Y_OFFSET = -50;
     private Bird bird;
@@ -16,6 +18,8 @@ public class GetReady extends Estado{
     private Vector2 groundPos1, groundPos2;
     private int cont=0, i=0;
     private long startTime=0;
+    private static Random rand;
+    private int r;
 
     public GetReady(GameStateManager gsm) {
         super(gsm);
@@ -24,12 +28,14 @@ public class GetReady extends Estado{
         //startTime = System.currentTimeMillis();
         bird = new Bird(33,300, "birdanimation.png");
         camera.setToOrtho(false, FlappyBirdLP.WIDTH/2, FlappyBirdLP.HEIGHT/2);
-        bg = new Texture("playbackground.png");
+        rand = new Random();
+        r = rand.nextInt(3);
+        bg = new Texture("playbackground"+r+".png");
         gr = new Texture("GetReady.png");
         tap = new Texture("GetReadyTap.png");
         bird.setStartmoving(300); //Para que no se caiga el pájaro
         bird.setTexture(new Texture("birddown.png"));
-        ground = new Texture("ground.png");
+        ground = new Texture("ground"+r+".png");
         groundPos1 = new Vector2(camera.position.x - camera.viewportWidth/2, GROUND_Y_OFFSET);
         groundPos2 = new Vector2((camera.position.x - camera.viewportWidth/2) + ground.getWidth(), GROUND_Y_OFFSET);
     }
@@ -38,7 +44,9 @@ public class GetReady extends Estado{
     protected void handleInput() {
         if(Gdx.input.justTouched()){
             bird.getFlapSound();
-            gsm.set(new PlayState(gsm));
+            final float gp1x = groundPos1.x;
+            final float gp2x = groundPos2.x;
+            gsm.set(new PlayState(gsm,r));
         }
     }
 

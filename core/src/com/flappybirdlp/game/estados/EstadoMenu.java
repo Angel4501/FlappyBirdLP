@@ -45,7 +45,7 @@ public class EstadoMenu extends Estado{
         background = new Texture("background.png");
         playBtn = new Texture("playbtn.png");
         startTitle = new Texture("FlappyBirdLogo.png");
-        birdFirstScreen = new Texture("bird2.png");
+        birdFirstScreen = resize("bird2.png",102,72);
         infobtn = resize("infobtn.png", 50, 50);
         LP = new Texture("LP.png");
         highscorebtn = resize("highscorebtn.png", 160, 60);

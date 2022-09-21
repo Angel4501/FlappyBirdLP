@@ -19,9 +19,9 @@ public class Tube {
     private Random rand;
     private int score;
 
-    public Tube(float x, int score){
-        topTube = new Texture("toptube.png");
-        bottomTube = new Texture("bottomtube.png");
+    public Tube(float x, int score, int r){
+        topTube = new Texture("toptube"+r+".png");
+        bottomTube = new Texture("bottomtube"+r+".png");
         rand = new Random();
         this.score=score;
 

@@ -38,6 +38,7 @@ public class PlayState extends Estado{
     private Texture homebtn;
     private Texture powerup;
     private Texture block;
+    private int r;
 
     private int val=0, score;
     private int highscore;
@@ -54,7 +55,7 @@ public class PlayState extends Estado{
     private int dynamicpowerupflag;
     //private int position;
 
-    public PlayState(GameStateManager gsm) {
+    public PlayState(GameStateManager gsm, int r) {
         super(gsm);
         if (prefs.getInteger("highscore")> 0){
             highscore = prefs.getInteger("highscore");
@@ -63,11 +64,11 @@ public class PlayState extends Estado{
         }
         bird = new Bird(30,300, "birdanimation.png");
         camera.setToOrtho(false, FlappyBirdLP.WIDTH/2, FlappyBirdLP.HEIGHT/2);
-        bg = new Texture("playbackground.png");
+        bg = new Texture("playbackground"+r+".png");
         bird.setStartmoving(0);
         bird.jump();
         //gr = new Texture("GetReady.png");
-        ground = new Texture("ground.png");
+        ground = new Texture("ground"+r+".png");
         groundPos1 = new Vector2(camera.position.x - camera.viewportWidth/2, GROUND_Y_OFFSET);
         groundPos2 = new Vector2((camera.position.x - camera.viewportWidth/2) + ground.getWidth(), GROUND_Y_OFFSET);
 
@@ -100,12 +101,12 @@ public class PlayState extends Estado{
         for(int i=1; i<=TUBE_COUNT; i++){
             if(i==1){
                 val=i*350; //i*300;
-                tubes.add(new Tube(val,10));
+                tubes.add(new Tube(val,10, r));
             }
             else{
                 //tubes.add(new Tube(i * (TUBE_SPACING + Tube.TUBE_WIDTH)));
                 val += TUBE_SPACING;
-                tubes.add(new Tube(val,10));
+                tubes.add(new Tube(val,10, r));
             }
 
             //tubes.add(new Tube(i * (TUBE_SPACING + Tube.TUBE_WIDTH)));
