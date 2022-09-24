@@ -23,11 +23,10 @@ public class PlayState extends Estado{
     private static final int TUBE_SPACING = 137;//135
     private static final int TUBE_COUNT = 4;
     private static final int GROUND_Y_OFFSET = -50;
-    private int flag=0, iterator=0, hi_flag, has_powerup=0, limitplace=5;
+    private int flag=0, iterator=0, hi_flag, has_hammer =0, limitplace=5;
     private float powerup_margin=0;
     private Array<Tube> tubes;
     private int fps = 60; //limit to 60 fps
-    private int verifytube;
     Preferences prefs = Gdx.app.getPreferences("My Preferences");
 
     private Bird bird;
@@ -36,19 +35,26 @@ public class PlayState extends Estado{
     private Vector2 groundPos1, groundPos2;
     private Texture retrybtn;
     private Texture homebtn;
-    private Texture powerup;
+    private Texture hammer;
+    private Texture phantom;
     private Texture block;
     private int r;
+    private int randopower;
+    private float powerpos=0;
+    private boolean has_power=true;
+    private boolean isPhantom=false;
+    private int phantomcount;
 
-    private int val=0, score;
+    private int val=0, score=0;
     private int highscore;
     private int hasCrashed; //0 si el pájaro aún no ha chocado con un tubo, 1 si ya chocó con un tubo
     private Sound crash, tubepassed, powerupsound, blockhit;
     private BitmapFont fontgameover; //COMENTAR A PARTIR DE AQUÍ SI SE VE MAL
     private FreeTypeFontGenerator fontGenerator;
     private FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
-    private Rectangle powerupbound;
+    private Rectangle hammerbound;
     private Rectangle blockbound;
+    private Rectangle phantombound;
     private static Random rand;
     private static int max, min;
     private int limits, blocklimit;
@@ -77,23 +83,26 @@ public class PlayState extends Estado{
         powerupsound = Gdx.audio.newSound(Gdx.files.internal("powerupsound.mp3"));
         blockhit = Gdx.audio.newSound(Gdx.files.internal("block_hit.mp3"));
 
-        score=0;
         hi_flag=0;
         hasCrashed = 0;
         fontgameover = new BitmapFont();
         /*fontScore.setColor(Color.WHITE);
         fontScore.getData().setScale(3);*/
         //POWERUP
-        powerup = resize("hammer.png", 30, 30);
-        powerupbound = new Rectangle(0,0,0,0);
+        hammer = resize("hammer.png", 30, 30);
+        hammerbound = new Rectangle(0,0,0,0);
         block = resize("block.png", 52, 80);
         blockbound = new Rectangle(0,0,0,0);
+        phantom = new Texture("phantom.png");
+        phantombound = new Rectangle(0,0,0,0);
+
         rand = new Random();
         min = 5; max = 7;
         //min = randomNumber();//BORRAR
         limits=randomNumber();
         powerup_margin= rand.nextInt(11)-5;
         blocklimit= limits+2;
+        randopower = rand.nextInt(2)+1;
 
         font_color(Color.WHITE, Color.BLACK);
         tubes = new Array<Tube>();
@@ -144,7 +153,7 @@ public class PlayState extends Estado{
     private int flagforpowerupsound = 0;
     private int values(){
         //Random random = new Random();
-        int r = (int)Math.floor(Math.random()*(3-1+1)+1);//entre 0 y 2
+        int r = rand.nextInt(3)+1;//entre 0 y 2
         switch (r){
             case 1:
                 if(mod(score,5)>=0 && mod(score,5)<=3 && score!=0){
@@ -203,7 +212,7 @@ public class PlayState extends Estado{
                     tube.reposition(val);
                     //tube.reposition(tube.getPosTopTube().x + ((Tube.TUBE_WIDTH + TUBE_SPACING) * TUBE_COUNT));
                 }
-                if(tube.collides(bird.getBounds())){ //si choca con un tubo
+                if(tube.collides(bird.getBounds()) && isPhantom==false){ //si choca con un tubo
                     crash.play(0.1f);
                     hasCrashed=1;
                     bird.setItsGameOver(1);
@@ -219,9 +228,15 @@ public class PlayState extends Estado{
                         break; //borrar si no funciona
                     }
                 }
-                if(getsPowerUp(bird.getBounds())){ //Si toca el powerup
-                    has_powerup=1;
-                    //powerup = new Texture("null.png");
+                if (powerpos+1==score && has_power==false){
+                    powerpos=0;
+                    limitplace=limitplace+5;
+                    limits = values();
+                }
+
+                if(getsHammer(bird.getBounds())){ //Si toca el powerup
+                    has_hammer =1;
+                    has_power=true;
                     if(flagforpowerupsound==0){
                         powerupsound.play(0.1f);
                         flagforpowerupsound=1;
@@ -229,13 +244,15 @@ public class PlayState extends Estado{
 
                         //powerup = new Texture("hammer.png");
                     }
-                    powerupbound= new Rectangle(0,0,0,0);
+                    hammerbound = new Rectangle(0,0,0,0);
                     //max = 12; //max+=5; max = 12
                     //min = 10; //min+=5; min = 10
+                    blocklimit= limits+2;
                     limitplace=limitplace+5;
                     limits = values(); //limits=10;
                     powerup_margin= rand.nextInt(11)-5;
                     dynamicpowerupflag=0;
+
                     /*if(dynamicpowerupflag==0){
                         //limits = randomNumber();
                         powerup = new Texture("hammer.png");
@@ -244,8 +261,35 @@ public class PlayState extends Estado{
                     break;
                 }
 
+                if(getsPhantom(bird.getBounds())){ //Si toca el powerup
+                    has_power=true;
+                    isPhantom=true;
+                    phantomcount=3;
+                    if(flagforpowerupsound==0){
+                        powerupsound.play(0.1f);
+                        flagforpowerupsound=1;
+                        bird.setAnimation(bird.getPosition().x, bird.getPosition().y,"phantom_animation.png");
+
+                        //powerup = new Texture("hammer.png");
+                    }
+                    blocklimit= 0;
+                    phantombound = new Rectangle(0,0,0,0);
+                    limitplace=limitplace+5;
+                    limits = values(); //limits=10;
+                    powerup_margin= rand.nextInt(11)-5;
+                    dynamicpowerupflag=0;
+
+                    randopower = rand.nextInt(2)+1;
+                    break;
+                }
+
+                if (phantomcount==0 && isPhantom){
+                    isPhantom=false;
+                    bird.setAnimation(bird.getPosition().x, bird.getPosition().y,"birdanimation.png");
+                }
+
                 if(touchblock(bird.getBounds())){
-                    if (has_powerup==0){
+                    if (has_hammer ==0){
                         crash.play(0.1f);
                         hasCrashed=1;
                         bird.setItsGameOver(1);
@@ -255,7 +299,7 @@ public class PlayState extends Estado{
                         blockhit.play(0.1f);
                         blocklimit= limits+2;
                         blockbound= new Rectangle(0,0,0,0);
-                        has_powerup=0;
+                        has_hammer =0;
                         bird.setAnimation(bird.getPosition().x, bird.getPosition().y,"birdanimation.png");
 
                     }
@@ -266,11 +310,8 @@ public class PlayState extends Estado{
                         tubepassed.play(0.1f);
                         score++;
                         tube.setScore(score);
+                        phantomcount--;
                     }
-
-                    /*if(flagforpowerupsound==1){
-                        powerup = new Texture("hammer.png");
-                    }*/
                     flagforpowerupsound=0;
                     if(score>=1 && score<=9){
                         digit1 = new Texture(score+".png");
@@ -325,7 +366,7 @@ public class PlayState extends Estado{
         sb.draw(bg, camera.position.x - (camera.viewportWidth/2), 0);
         //sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
         if(hasCrashed==0){
-            sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
+
 
             /*if(dynamicpowerupflag==0){
                 limits = randomNumber();
@@ -343,31 +384,16 @@ public class PlayState extends Estado{
                 sb.draw(tube.getTopTube(), tube.getPosTopTube().x, tube.getPosTopTube().y);
                 sb.draw(tube.getBottomTube(), tube.getPosBotTube().x, tube.getPosBotTube().y);
 
-                if(score>=limits && score<=limits+1){//score>=limits && score<=limits+1
-                    int position = exactPositionForPowerup(limits); //exactPositionForPowerup(limits);
-                    powerupbound = new Rectangle(tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10), powerup.getWidth(), powerup.getHeight());
-                    sb.draw(powerup, tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10));
-                }
-                if (score>=blocklimit && score<=blocklimit+1){
-                    int position = exactPositionForPowerup(blocklimit);
-                    blockbound = new Rectangle(tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80, block.getWidth(), block.getHeight());
-                    sb.draw(block, tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80);
-                }
+                PowerupPlacement(sb);
             }
+            sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
         }
         else{//Para que se dibujen los tubos primero y encima el pájaro
             for(Tube tube : tubes){
                 sb.draw(tube.getTopTube(), tube.getPosTopTube().x, tube.getPosTopTube().y);
                 sb.draw(tube.getBottomTube(), tube.getPosBotTube().x, tube.getPosBotTube().y);
 
-                if(score>=limits && score<=limits+1){//score>=limits && score<=limits+1
-                    int position = exactPositionForPowerup(limits); //exactPositionForPowerup(limits);
-                    sb.draw(powerup, tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10));
-                }
-                if (score>=blocklimit && score<=blocklimit+1){
-                    int position = exactPositionForPowerup(blocklimit);
-                    sb.draw(block, tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80);
-                }
+                PowerupPlacement(sb);
             }
             sb.draw(bird.getTexture(), bird.getPosition().x, bird.getPosition().y);
         }
@@ -466,7 +492,7 @@ public class PlayState extends Estado{
         digit2.dispose();
         digit3.dispose();
         retrybtn.dispose();
-        powerup.dispose();
+        hammer.dispose();
         powerupsound.dispose();
         block.dispose();
         blockhit.dispose();
@@ -502,6 +528,36 @@ public class PlayState extends Estado{
         );
         Texture texture = new Texture(newsize);
         return texture;
+    }
+
+    private void PowerupPlacement (SpriteBatch sb){
+        switch (randopower){
+            case 1:
+                if(score>=limits && score<=limits+1){//score>=limits && score<=limits+1
+                    int position = exactPositionForPowerup(limits); //exactPositionForPowerup(limits);
+                    hammerbound = new Rectangle(tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10), hammer.getWidth(), hammer.getHeight());
+                    has_power=false;
+                    powerpos = tubes.get(position).getScore()+3;
+                    sb.draw(hammer, tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10));
+                }
+                if (score>=blocklimit && score<=blocklimit+1){
+                    int position = exactPositionForPowerup(blocklimit);
+                    blockbound = new Rectangle(tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80, block.getWidth(), block.getHeight());
+                    sb.draw(block, tubes.get(position).getPosTopTube().x, tubes.get(position).getPosTopTube().y-80);
+                }
+                break;
+            case 2:
+                if(score>=limits && score<=limits+1){//score>=limits && score<=limits+1
+                    int position = exactPositionForPowerup(limits); //exactPositionForPowerup(limits);
+                    powerpos = tubes.get(position).getScore()+3;
+                    has_power=false;
+                    phantombound = new Rectangle(tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10), phantom.getWidth(), phantom.getHeight());
+                    sb.draw(phantom, tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10));
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     private String[] digitosContador(int numero){
@@ -543,12 +599,16 @@ public class PlayState extends Estado{
         return rutas;
     }
 
-    private boolean getsPowerUp(Rectangle r){
-        return r.overlaps(powerupbound);
+    private boolean getsHammer(Rectangle r){
+        return r.overlaps(hammerbound);
     }
 
     private boolean touchblock (Rectangle r){
         return r.overlaps(blockbound);
+    }
+
+    private boolean getsPhantom(Rectangle r){
+        return r.overlaps(phantombound);
     }
 
     private static int randomNumber(){ //Para los rangos de cúando aparece el powerup

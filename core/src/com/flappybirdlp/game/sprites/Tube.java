@@ -68,7 +68,7 @@ public class Tube {
         float x = birdPosition.x;
         float result = x - posBotTube.x;
         float result2 = x - posTopTube.x;
-        if((result >=50 && result <=52) && (result2>=50 && result2<=52)/*(x - posBotTube.x >0) && (x - posBotTube.x <= 2)*/){
+        if((result >52) && (result2>52)){
             return true;
         }
         return false;

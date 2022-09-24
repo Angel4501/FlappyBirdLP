@@ -109,6 +109,7 @@ public class Bird {
         return bounds;
     }
 
+
     public void dispose(){
         texture.dispose();
         flap.dispose();
