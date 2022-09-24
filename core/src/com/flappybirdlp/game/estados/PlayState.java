@@ -244,11 +244,11 @@ public class PlayState extends Estado{
                         bird.setAnimation(bird.getPosition().x, bird.getPosition().y,"bird_hammer_animation.png");
                     }
                     hammerbound = new Rectangle(0,0,0,0);
-                    blocklimit= limits+2;
+                    blocklimit= limits+1;
                     limitplace=limitplace+5;
                     limits = values(); //limits=10;
                     powerup_margin= rand.nextInt(11)-5;
-                    randopower = rand.nextInt(2)+1;
+
                     dynamicpowerupflag=0;
                     break;
                 }
@@ -287,9 +287,10 @@ public class PlayState extends Estado{
                         break;
                     }else{//si no tiene martillo
                         blockhit.play(0.1f);
-                        blocklimit= limits+2;
+                        blocklimit= limits+1;
                         blockbound= new Rectangle(0,0,0,0);
                         has_hammer =0;
+                        randopower = rand.nextInt(2)+1;
                         bird.setAnimation(bird.getPosition().x, bird.getPosition().y,"birdanimation.png");
 
                     }
@@ -519,7 +520,7 @@ public class PlayState extends Estado{
                     int position = exactPositionForPowerup(limits); //exactPositionForPowerup(limits);
                     hammerbound = new Rectangle(tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10), hammer.getWidth(), hammer.getHeight());
                     has_power=false;
-                    blocklimit= limits+2;
+                    blocklimit= limits+1;
                     powerpos = tubes.get(position).getScore()+3;
                     sb.draw(hammer, tubes.get(position).getPosTopTube().x-60, tubes.get(position).getPosTopTube().y-45+(powerup_margin*10));
                 }
